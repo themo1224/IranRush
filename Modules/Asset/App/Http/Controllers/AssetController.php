@@ -20,5 +20,11 @@ class AssetController extends Controller
     public function generateSignedUrl(GenerateSignedUrlRequest $request)
     {
         $signedUrl = $this->assetService->generateSignedUrl($request->file_name);
+        return response()->json(['signed_url' => $signedUrl], 200);
+    }
+
+    public function selectQuality(Request $request)
+    {
+        // Handle quality selection and pricing logic
     }
 }

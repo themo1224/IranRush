@@ -10,13 +10,15 @@ class ProcessedAsset extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     */
-    protected $fillable = [];
-    
-    protected static function newFactory(): ProcessedAssetFactory
+    protected $fillable = [
+        'asset_id',
+        'quality',
+        'price',
+        'file_path'
+    ];
+
+    public function asset()
     {
-        //return ProcessedAssetFactory::new();
+        return $this->belongsTo(Asset::class);
     }
 }

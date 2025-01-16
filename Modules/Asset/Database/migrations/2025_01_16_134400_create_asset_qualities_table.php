@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('processed_assets', function (Blueprint $table) {
+        Schema::create('asset_qualities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('asset_id')->constrained('assets')->cascadeOnDelete();
-            $table->string('quality');
-            $table->string('file_path');
+            $table->string('quality'); // e.g., "4K", "1080p", "720p"
+            $table->decimal('price', 10, 2); // Price for this specific quality
+            $table->string('file_path')->nullable(); // Path for the processed quality
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('processed_assets');
+        Schema::dropIfExists('asset_qualities');
     }
 };
