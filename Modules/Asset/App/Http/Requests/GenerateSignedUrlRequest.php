@@ -12,7 +12,8 @@ class GenerateSignedUrlRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'fileName' => 'required|string|max:255',
+            'filetype' => 'required|string',
         ];
     }
 
