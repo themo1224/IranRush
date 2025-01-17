@@ -13,7 +13,7 @@ class GenerateSignedUrlRequest extends FormRequest
     {
         return [
             'fileName' => 'required|string|max:255',
-            'filetype' => 'required|string',
+            'fileType' => 'required|string',
         ];
     }
 

@@ -21,7 +21,6 @@ class AssetController extends Controller
     public function generateSignedUrl(GenerateSignedUrlRequest $request)
     {
         $userId = Auth::user()->id;
-
         $signedUrl = $this->assetService->generateSignedUrl(
             $request->fileName,
             $request->fileType,

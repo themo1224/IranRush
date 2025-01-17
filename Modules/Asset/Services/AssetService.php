@@ -8,17 +8,20 @@ use Illuminate\Support\Str;
 
 class AssetService
 {
-    public function generateSignedUrl(string $fileName,  $fileType, int $userId)
+    public function generateSignedUrl(string $fileName, $fileType, int $userId)
     {
-        // generate unique file path
-        $filePath = "user-assets/{$userId}/original/" . Str::uuid() . "/{$fileType}";
+        // Generate unique file name with extension
 
-        //Create signedUrl
+
+        // Generate file path
+        $filePath = "user-assets/{$userId}/original/{$fileName}";
+        // Create signed URL
         $signedUrl = Storage::disk('liara')->temporaryUrl(
             $filePath,
             now()->addMinutes(60),
             ['Content-Type' => $fileType]
         );
+
         return [
             'signed_url' => $signedUrl,
             'file_path' => $filePath,
