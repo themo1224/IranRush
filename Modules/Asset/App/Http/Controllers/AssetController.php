@@ -27,9 +27,19 @@ class AssetController extends Controller
         ]);
 
         $file = $request->file('upload_file');
+        $price = $request->input('price');
+        $userId = auth()->user()->id;
 
         $uploadResult = $this->assetService->storeFile($file);
-
+        if ($uploadResult['success']) {
+            $asset = $this->assetService->createAsset([
+                'user_id' => $userId,
+                'file_path' => $uploadResult['file_url'],
+                'file_type' => $file->getClientMimeType(),
+                'price' => $price,
+                'status' => \App\Enums\AssetStatus::PENDING, // Use Enum for status
+            ]);
+        }
         if ($uploadResult['success']) {
             return response()->json([
                 'success' => true,
