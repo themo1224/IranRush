@@ -7,26 +7,41 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Modules\Asset\App\Http\Requests\GenerateSignedUrlRequest;
 use Modules\Asset\Services\AssetService;
 
 class AssetController extends Controller
 {
-    protected AssetService  $assetService;
-    public function __construct(AssetService  $assetService)
+    protected $assetService;
+
+    public function __construct(AssetService $assetService)
     {
         $this->assetService = $assetService;
     }
 
-    public function generateSignedUrl(GenerateSignedUrlRequest $request)
+    public function uploadFile(Request $request)
     {
-        $userId = Auth::user()->id;
-        $signedUrl = $this->assetService->generateSignedUrl(
-            $request->fileName,
-            $request->fileType,
-            $userId
-        );
-        return response()->json(['signed_url' => $signedUrl], 200);
+        $request->validate([
+            'upload_file' => 'required|file|max:5000|mimes:jpeg,png,jpg,mp4,mp3', // Adjust file size and types as needed
+        ]);
+
+        $file = $request->file('upload_file');
+
+        $uploadResult = $this->assetService->storeFile($file);
+
+        if ($uploadResult['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => 'File uploaded successfully',
+                'file_url' => $uploadResult['file_url'],
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'File upload failed',
+        ], 500);
     }
 
     public function saveAssetMetadata(Request $request)

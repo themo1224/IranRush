@@ -2,32 +2,52 @@
 
 namespace Modules\Asset\Services;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\Asset\App\Models\Asset;
 use Illuminate\Support\Str;
 
 class AssetService
 {
-    public function generateSignedUrl(string $fileName, $fileType, int $userId)
+    protected $disk;
+
+    public function __construct()
     {
-        // Generate unique file name with extension
-
-
-        // Generate file path
-        $filePath = "user-assets/{$userId}/original/{$fileName}";
-        // Create signed URL
-        $signedUrl = Storage::disk('liara')->temporaryUrl(
-            $filePath,
-            now()->addMinutes(60),
-            ['Content-Type' => $fileType]
-        );
-
-        return [
-            'signed_url' => $signedUrl,
-            'file_path' => $filePath,
-        ];
+        $this->disk = 'liara'; // Name of the disk configured in `filesystems.php`
     }
 
+    /**
+     * Store the uploaded file in Liara bucket.
+     *
+     * @param \Illuminate\Http\UploadedFile $file
+     * @return array
+     */
+    public function storeFile($file): array
+    {
+        try {
+            // Generate unique file name and path
+            $uniqueName = uniqid() . '-' . $file->getClientOriginalName();
+            $filePath = 'user-assets/' . $uniqueName;
+
+            // Upload to Liara storage
+            $stored = Storage::disk($this->disk)->put($filePath, file_get_contents($file));
+
+            if ($stored) {
+                // Generate URL for the stored file
+                $fileUrl = Storage::disk($this->disk)->url($filePath);
+
+                return [
+                    'success' => true,
+                    'file_url' => $fileUrl,
+                ];
+            }
+
+            return ['success' => false];
+        } catch (\Exception $e) {
+            Log::error('Error storing file: ' . $e->getMessage());
+            return ['success' => false];
+        }
+    }
     public function storeAssetMetadata(array $data): Asset
     {
         return Asset::create([
