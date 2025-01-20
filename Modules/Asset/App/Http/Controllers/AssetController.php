@@ -2,14 +2,14 @@
 
 namespace Modules\Asset\App\Http\Controllers;
 
+use Modules\Asset\App\Http\Enums\AssetStatus;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Modules\Asset\App\Http\Requests\GenerateSignedUrlRequest;
 use Modules\Asset\Services\AssetService;
+use Exception;
+
 
 class AssetController extends Controller
 {
@@ -20,57 +20,65 @@ class AssetController extends Controller
         $this->assetService = $assetService;
     }
 
-    public function uploadFile(Request $request)
+    public function uploadFile(GenerateSignedUrlRequest $request)
     {
-        $request->validate([
-            'upload_file' => 'required|file|max:5000|mimes:jpeg,png,jpg,mp4,mp3', // Adjust file size and types as needed
-        ]);
-
+        $validatedData = $request->validated(); // This should throw an exception if validation fails
         $file = $request->file('upload_file');
         $price = $request->input('price');
         $userId = auth()->user()->id;
+        try {
+            // Handle file upload
+            $uploadResult = $this->assetService->storeFile($file, $userId);
 
-        $uploadResult = $this->assetService->storeFile($file);
-        if ($uploadResult['success']) {
-            $asset = $this->assetService->createAsset([
-                'user_id' => $userId,
-                'file_path' => $uploadResult['file_url'],
-                'file_type' => $file->getClientMimeType(),
-                'price' => $price,
-                'status' => \App\Enums\AssetStatus::PENDING, // Use Enum for status
-            ]);
-        }
-        if ($uploadResult['success']) {
+            if ($uploadResult['success']) {
+                // Save metadata using a separate method
+                $asset = $this->saveAssetMetadata($uploadResult['file_url'], $file, $price, $userId);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'File uploaded successfully',
+                    'file_url' => $uploadResult['file_url'],
+                    'asset' => $asset,
+                ], 200);
+            }
+
+            // Handle case where upload fails but doesn't throw an exception
             return response()->json([
-                'success' => true,
-                'message' => 'File uploaded successfully',
-                'file_url' => $uploadResult['file_url'],
-            ], 200);
+                'success' => false,
+                'message' => 'File upload failed unexpectedly',
+            ], 500);
+        } catch (Exception $e) {
+            // Log the exception for debugging
+            Log::error('Error during file upload: ' . $e->getMessage());
+
+            // Return a structured error response
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred during file upload.',
+                'error' => $e->getMessage(), // For debugging, you might remove this in production
+                'trace' => $e->getTraceAsString(), // Optional: Add for detailed debugging
+            ], 500);
         }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'File upload failed',
-        ], 500);
     }
+    /**
+     * Save asset metadata to the database.
+     *
+     * @param string $fileUrl
+     * @param \Illuminate\Http\UploadedFile $file
+     * @param float $price
+     * @param int $userId
+     * @return \App\Models\Asset
+     */
 
-    public function saveAssetMetadata(Request $request)
+    private function saveAssetMetadata($fileUrl, $file, $price, $userId)
     {
-        $validatedData = $request->validate([
-            'file_path' => 'required|string',
-            'file_type' => 'required|string',
-            'price' => 'nullable|numeric',
+        return $this->assetService->createAsset([
+            'user_id' => $userId,
+            'file_path' => $fileUrl,
+            'file_type' => $file->getClientMimeType(),
+            'price' => $price,
         ]);
-
-        $validatedData['user_id'] = auth()->id();
-        $asset = $this->assetService->storeAssetMetadata($validatedData);
-
-        return response()->json([
-            'message' => 'Asset metadata saved successfully.',
-            'asset' => $asset,
-        ], 201);
     }
-
     public function selectQuality(Request $request)
     {
         // Handle quality selection and pricing logic

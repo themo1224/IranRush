@@ -22,12 +22,12 @@ class AssetService
      * @param \Illuminate\Http\UploadedFile $file
      * @return array
      */
-    public function storeFile($file): array
+    public function storeFile($file, $userID): array
     {
         try {
             // Generate unique file name and path
             $uniqueName = uniqid() . '-' . $file->getClientOriginalName();
-            $filePath = 'user-assets/' . $uniqueName;
+            $filePath = 'user-assets/' . '{$userId}/' . $uniqueName;
 
             // Upload to Liara storage
             $stored = Storage::disk($this->disk)->put($filePath, file_get_contents($file));
@@ -48,14 +48,8 @@ class AssetService
             return ['success' => false];
         }
     }
-    public function storeAssetMetadata(array $data): Asset
+    public function createAsset(array $data): Asset
     {
-        return Asset::create([
-            'user_id' => $data['user_id'],
-            'file_path' => $data['file_path'],
-            'file_type' => $data['file_type'],
-            'price' => $data['price'] ?? null,
-            'status' => 'pending',
-        ]);
+        return Asset::create($data);
     }
 }
