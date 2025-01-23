@@ -52,4 +52,21 @@ class AssetService
     {
         return Asset::create($data);
     }
+
+    public function assignTagsAndCategories(Asset $asset, array $tags, int $categoryId): Asset
+    {
+        try {
+            if (!empty($tags)) {
+                $tagIds = Asset::whereIn('name', $tags)->pluck('id')->toArray();
+
+                $asset->tags()->sync($tagIds);
+            }
+
+            $asset->category_id = $categoryId;
+            $asset->save();
+            return $asset;
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
 }

@@ -34,6 +34,10 @@ class AssetController extends Controller
                 // Save metadata using a separate method
                 $asset = $this->saveAssetMetadata($uploadResult['file_url'], $file, $price, $userId);
 
+                // Get the Tags and Categories and assign it to Asset
+                $tags = $request->input('tags');
+                $categoryId = $request->input('category_id');
+                $this->assetService->assignTagsAndCategories($asset, $tags, $categoryId);
                 return response()->json([
                     'success' => true,
                     'message' => 'File uploaded successfully',

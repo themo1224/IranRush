@@ -34,11 +34,11 @@ class AuthController extends Controller
     {
         $otp = $this->authService->generateOtp($request->phone_number);
 
-        if (!$this->sendSms($request->phone_number, "Your OTP is : $otp")) {
-            return response()->json(['message' => 'Failed to send OTP.'], 500);
+        if (!$this->sendSms($request->phone_number, "کد تایید شما : $otp")) {
+            return response()->json(['message' => 'ارسال کد تایید با خطا مواجه شد.'], 500);
         }
 
-        return response()->json(['message' => "OTP sent successfully. : $otp"]);
+        return response()->json(['message' => "کد تایید با موفقیت ارسال شد: $otp"]);
     }
 
     /**
@@ -49,17 +49,17 @@ class AuthController extends Controller
     {
         // Verify OTP
         if (!$this->authService->verifyOtp($request->phone_number, $request->otp)) {
-            return response()->json(['message' => 'Invalid or expired OTP.'], 422);
+            return response()->json(['message' => 'کد تایید نامعتبر یا منقضی شده است.'], 422);
         }
 
         // Register User
         $user = $this->authService->registerUser($request->all());
 
-        //Generates token
+        // Generate Token
         $token = $user->createToken('api_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Registration successful.',
+            'message' => 'ثبت نام با موفقیت انجام شد.',
             'token' => $token,
             'user' => $user,
         ]);
@@ -71,11 +71,11 @@ class AuthController extends Controller
         $otp = $this->authService->generateOtp($request->phone_number);
 
         // Send OTP via SMS
-        if (!$this->sendSms($request->phone_number, "Your OTP is: $otp")) {
-            return response()->json(['message' => 'Failed to send OTP.'], 500);
+        if (!$this->sendSms($request->phone_number, "کد تایید شما: $otp")) {
+            return response()->json(['message' => 'ارسال کد تایید با خطا مواجه شد.'], 500);
         }
 
-        return response()->json(['message' => "OTP sent successfully. : $otp"]);
+        return response()->json(['message' => "کد تایید با موفقیت ارسال شد: $otp"]);
     }
 
     /**
@@ -85,7 +85,7 @@ class AuthController extends Controller
     {
         // Verify OTP
         if (!$this->authService->verifyOtp($request->phone_number, $request->otp)) {
-            return response()->json(['message' => 'Invalid or expired OTP.'], 422);
+            return response()->json(['message' => 'کد تایید نامعتبر یا منقضی شده است.'], 422);
         }
 
         // Find or create user
@@ -95,7 +95,7 @@ class AuthController extends Controller
         $token = $user->createToken('api_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Login successful.',
+            'message' => 'ورود با موفقیت انجام شد.',
             'token' => $token,
             'user' => $user,
         ]);
