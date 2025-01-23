@@ -13,7 +13,16 @@ class Photo extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = [];
+    protected $fillable = [
+        'name',
+        'user_id',
+        'file_path',
+        'price',
+        'category_id',
+        'description',
+        'width',
+        'height',
+    ];
 
     public function qualities()
     {

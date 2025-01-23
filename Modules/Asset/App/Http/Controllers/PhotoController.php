@@ -6,62 +6,62 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
+use Modules\Asset\App\Http\Requests\PhotoRequest;
+use Modules\Asset\Services\PhotoService;
 
 class PhotoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $photoService;
+    public function __construct(PhotoService $photoService)
     {
-        return view('asset::index');
+        $this->photoService = $photoService;
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function uploadPhoto(Request $request)
     {
-        return view('asset::create');
+        $userId = auth()->user()->id;
+        $file = $request->file('upload_file');
+        $price = $request->input('price');
+        try {
+            $uploadResult = $this->photoService->storeFile($file, $userId);
+            if ($uploadResult['success']) {
+                $photo = $this->savePhotoMetadata($uploadResult['file_url'], $file, $price, $userId);
+                // Assign tags and category to the photo
+                $tags = $request->input('tags', []);
+                $categoryId = $request->input('category_id');
+                $this->photoService->assignTagsAndCategories($photo, $tags, $categoryId);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Photo uploaded successfully',
+                    'file_url' => $uploadResult['file_url'],
+                    'photo' => $photo,
+                ], 200);
+            }
+
+            // Handle case where upload fails but doesn't throw an exception
+            return response()->json([
+                'success' => false,
+                'message' => 'Photo upload failed unexpectedly',
+            ], 500);
+        } catch (\Exception $e) {
+            // Log the exception for debugging
+            Log::error('Error during photo upload: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred during photo upload.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
+    private function savePhotoMetadata($fileUrl, $file, $price, $userId)
     {
-        //
-    }
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
-    {
-        return view('asset::show');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        return view('asset::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id): RedirectResponse
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        //
+        return $this->photoService->createPhoto([
+            'user_id' => $userId,
+            'file_path' => $fileUrl,
+            'name' => $file->getClientOriginalName(),
+            'price' => $price,
+        ]);
     }
 }

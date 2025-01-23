@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Modules\Asset\App\Http\Controllers\AssetController;
+use Modules\Asset\App\Http\Controllers\PhotoController;
 
 /*
     |--------------------------------------------------------------------------
@@ -19,7 +19,6 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->name('api.')->group(function 
     Route::get('asset', fn(Request $request) => $request->user())->name('asset');
 });
 
-Route::middleware(['auth:sanctum', 'api'])->prefix('assets')->group(function () {
-    Route::post('upload', [AssetController::class, 'uploadFile']);
-    Route::post('/quality-selection', [AssetController::class, 'selectQuality']);
+Route::middleware(['auth:sanctum', 'api'])->prefix('assets/')->group(function () {
+    Route::post('photo/upload', [PhotoController::class, 'uploadPhoto']);
 });

@@ -2,10 +2,12 @@
 
 namespace Modules\Asset\Services;
 
+use App\Models\Tag;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\Asset\App\Models\Asset;
 use Illuminate\Support\Str;
+use Modules\Asset\App\Models\Photo;
 
 class PhotoService
 {
@@ -22,12 +24,12 @@ class PhotoService
      * @param \Illuminate\Http\UploadedFile $file
      * @return array
      */
-    public function storeFile($file, $userID): array
+    public function storeFile($file, $userId): array
     {
         try {
             // Generate unique file name and path
             $uniqueName = uniqid() . '-' . $file->getClientOriginalName();
-            $filePath = 'user-assets/' . '{$userId}/' . $uniqueName;
+            $filePath = 'user-photos/' . $userId . '/' . $uniqueName;
 
             // Upload to Liara storage
             $stored = Storage::disk($this->disk)->put($filePath, file_get_contents($file));
@@ -44,28 +46,39 @@ class PhotoService
 
             return ['success' => false];
         } catch (\Exception $e) {
-            Log::error('Error storing file: ' . $e->getMessage());
+            Log::error('Error storing photo: ' . $e->getMessage());
             return ['success' => false];
         }
     }
-    public function createAsset(array $data): Asset
+
+    /**
+     * Create a new photo record in the database.
+     */
+    public function createPhoto(array $data): Photo
     {
-        return Asset::create($data);
+        return Photo::create($data);
     }
 
-    public function assignTagsAndCategories(Asset $asset, array $tags, int $categoryId): Asset
+    /**
+     * Assign tags and category to the photo.
+     */
+    public function assignTagsAndCategories(Photo $photo, array $tags, int $categoryId = null): Photo
     {
         try {
+            // Assign tags
             if (!empty($tags)) {
-                $tagIds = Asset::whereIn('name', $tags)->pluck('id')->toArray();
+                $tagIds = Tag::whereIn('name', $tags)->pluck('id')->toArray();
 
-                $asset->tags()->sync($tagIds);
+                $photo->tags()->sync($tagIds);
             }
 
-            $asset->category_id = $categoryId;
-            $asset->save();
-            return $asset;
+            // Assign category
+            $photo->category_id = $categoryId;
+            $photo->save();
+
+            return $photo;
         } catch (\Exception $e) {
+            Log::error('Error assigning tags and category to photo: ' . $e->getMessage());
             throw $e;
         }
     }
