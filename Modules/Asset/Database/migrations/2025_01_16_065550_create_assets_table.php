@@ -11,14 +11,45 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('assets', function (Blueprint $table) {
+        // Photos Table
+        Schema::create('photos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('file_path');
-            $table->string('file_type');
-            $table->decimal('price', 10, 2)->nullable(); // Base price for the original asset
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->text('rejection_reason')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Asset owner
+            $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null'); // Category association
+            $table->string('name');
+            $table->integer('price')->nullable();
+            $table->string('file_path'); // Path to the file
+            $table->integer('width')->nullable(); // Width in pixels
+            $table->integer('height')->nullable(); // Height in pixels
+            $table->text('description')->nullable(); // Optional description
+            $table->timestamps();
+        });
+
+        // Videos Table
+        Schema::create('videos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Asset owner
+            $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null'); // Category association
+            $table->string('name');
+            $table->integer('price')->nullable();
+            $table->string('file_path'); // Path to the file
+            $table->integer('duration')->nullable(); // Duration in seconds
+            $table->string('resolution')->nullable(); // Resolution (e.g., 1080p, 720p)
+            $table->text('description')->nullable(); // Optional description
+            $table->timestamps();
+        });
+
+        // Audios Table
+        Schema::create('audios', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Asset owner
+            $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null'); // Category association
+            $table->string('name');
+            $table->integer('price')->nullable();
+            $table->string('file_path'); // Path to the file
+            $table->integer('duration')->nullable(); // Duration in seconds
+            $table->integer('bitrate')->nullable(); // Bitrate in kbps
+            $table->text('description')->nullable(); // Optional description
             $table->timestamps();
         });
     }
@@ -28,6 +59,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('assets');
+        Schema::dropIfExists('photos');
+        Schema::dropIfExists('videos');
+        Schema::dropIfExists('audios');
     }
 };

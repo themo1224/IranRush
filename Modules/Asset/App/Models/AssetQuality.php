@@ -4,18 +4,16 @@ namespace Modules\Asset\App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Modules\Asset\Database\factories\ProcessedAssetFactory;
+use Modules\Asset\Database\factories\AssetQualityFactory;
 
-class ProcessedAsset extends Model
+class AssetQuality extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'asset_id',
-        'quality',
-        'price',
-        'file_path'
-    ];
+    /**
+     * The attributes that are mass assignable.
+     */
+    protected $fillable = [];
 
     public function asset()
     {

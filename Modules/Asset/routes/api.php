@@ -20,6 +20,6 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->name('api.')->group(function 
 });
 
 Route::middleware(['auth:sanctum', 'api'])->prefix('assets')->group(function () {
-    Route::post('/generate-signed-url', [AssetController::class, 'uploadFile']);
+    Route::post('upload', [AssetController::class, 'uploadFile']);
     Route::post('/quality-selection', [AssetController::class, 'selectQuality']);
 });

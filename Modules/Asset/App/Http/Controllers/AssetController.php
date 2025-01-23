@@ -22,7 +22,6 @@ class AssetController extends Controller
 
     public function uploadFile(GenerateSignedUrlRequest $request)
     {
-        $validatedData = $request->validated(); // This should throw an exception if validation fails
         $file = $request->file('upload_file');
         $price = $request->input('price');
         $userId = auth()->user()->id;

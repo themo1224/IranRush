@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('processed_assets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('asset_id')->constrained('assets')->cascadeOnDelete();
+            $table->morphs('asset');
             $table->string('quality');
             $table->string('file_path');
             $table->timestamps();

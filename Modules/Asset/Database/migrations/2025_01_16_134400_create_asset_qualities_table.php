@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('asset_qualities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('asset_id')->constrained('assets')->cascadeOnDelete();
+            $table->morphs('asset');
             $table->string('quality'); // e.g., "4K", "1080p", "720p"
             $table->decimal('price', 10, 2); // Price for this specific quality
             $table->string('file_path')->nullable(); // Path for the processed quality
