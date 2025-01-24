@@ -13,7 +13,17 @@ class Audio extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = [];
+    protected $fillable = [
+        'user_id',
+        'file_path',
+        'file_type',
+        'price',
+        'name',
+        'duration',    // Specific to audios
+        'description', // Optional
+        'category_id',
+        'status',
+    ];
 
     public function qualities()
     {

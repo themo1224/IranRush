@@ -13,7 +13,17 @@ class Video extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = [];
+    protected $fillable = [
+        'user_id',
+        'file_path',
+        'price',
+        'name',
+        'resolution',
+        'duration',
+        'description',
+        'category_id',
+        'status',
+    ];
 
     public function qualities()
     {

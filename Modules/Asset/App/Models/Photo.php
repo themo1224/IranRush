@@ -22,6 +22,7 @@ class Photo extends Model
         'description',
         'width',
         'height',
+        'status',
     ];
 
     public function qualities()

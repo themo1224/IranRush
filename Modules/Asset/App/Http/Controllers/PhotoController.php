@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Modules\Asset\App\Http\Enums\AssetStatus;
 use Modules\Asset\App\Http\Requests\PhotoRequest;
 use Modules\Asset\Services\PhotoService;
 
@@ -62,6 +63,7 @@ class PhotoController extends Controller
             'file_path' => $fileUrl,
             'name' => $file->getClientOriginalName(),
             'price' => $price,
+            'status' => AssetStatus::PENDING
         ]);
     }
 }

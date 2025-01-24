@@ -2,10 +2,12 @@
 
 namespace Modules\Asset\Services;
 
+use App\Models\Tag;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\Asset\App\Models\Asset;
 use Illuminate\Support\Str;
+use Modules\Asset\App\Models\Audio;
 
 class AudioService
 {
@@ -17,17 +19,17 @@ class AudioService
     }
 
     /**
-     * Store the uploaded file in Liara bucket.
+     * Store the uploaded audio in Liara bucket.
      *
      * @param \Illuminate\Http\UploadedFile $file
      * @return array
      */
-    public function storeFile($file, $userID): array
+    public function storeFile($file, $userId): array
     {
         try {
             // Generate unique file name and path
             $uniqueName = uniqid() . '-' . $file->getClientOriginalName();
-            $filePath = 'user-assets/' . '{$userId}/' . $uniqueName;
+            $filePath = 'user-audios/' . $userId . '/' . $uniqueName;
 
             // Upload to Liara storage
             $stored = Storage::disk($this->disk)->put($filePath, file_get_contents($file));
@@ -44,28 +46,44 @@ class AudioService
 
             return ['success' => false];
         } catch (\Exception $e) {
-            Log::error('Error storing file: ' . $e->getMessage());
+            Log::error('Error storing audio: ' . $e->getMessage());
             return ['success' => false];
         }
     }
-    public function createAsset(array $data): Asset
+
+    /**
+     * Create a new audio record in the database.
+     */
+    public function createAudio(array $data): Audio
     {
-        return Asset::create($data);
+        return Audio::create($data);
     }
 
-    public function assignTagsAndCategories(Asset $asset, array $tags, int $categoryId): Asset
+    /**
+     * Assign tags and category to the audio.
+     */
+    public function assignTagsAndCategories(Audio $audio, array $tags, int $categoryId = null): Audio
     {
         try {
+            // Assign tags
             if (!empty($tags)) {
-                $tagIds = Asset::whereIn('name', $tags)->pluck('id')->toArray();
+                $tagIds = Tag::whereIn('name', $tags)->pluck('id')->toArray();
 
-                $asset->tags()->sync($tagIds);
+                foreach ($tags as $tagName) {
+                    $tag = Tag::firstOrCreate(['name' => $tagName]);
+                    $tagIds[] = $tag->id;
+                }
+
+                $audio->tags()->sync($tagIds);
             }
 
-            $asset->category_id = $categoryId;
-            $asset->save();
-            return $asset;
+            // Assign category
+            $audio->category_id = $categoryId;
+            $audio->save();
+
+            return $audio;
         } catch (\Exception $e) {
+            Log::error('Error assigning tags and category to audio: ' . $e->getMessage());
             throw $e;
         }
     }
