@@ -11,8 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('', function (Blueprint $table) {
-            
+        Schema::table('photos', function (Blueprint $table) {
+            $table->string('fileType')->nullable();
+        });
+        Schema::table('videos', function (Blueprint $table) {
+            $table->string('fileType')->nullable();
+        });
+        Schema::table('audios', function (Blueprint $table) {
+            $table->string('fileType')->nullable();
         });
     }
 
@@ -21,8 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('', function (Blueprint $table) {
-            
-        });
+        Schema::table('', function (Blueprint $table) {});
     }
 };

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Modules\Asset\App\Http\Enums\AssetStatus;
+use Modules\Asset\App\Http\Requests\AudioRequest;
 use Modules\Asset\Services\AudioService;
 
 class AudioController extends Controller
@@ -19,16 +20,8 @@ class AudioController extends Controller
         $this->audioService = $audioService;
     }
 
-    public function uploadAudio(Request $request)
+    public function uploadAudio(AudioRequest $request)
     {
-        $request->validate([
-            'upload_file' => 'required|mimetypes:audio/mpeg,audio/mp3|max:51200', // Limit to 50MB
-            'price' => 'required|numeric|min:0',
-            'tags' => 'array',
-            'tags.*' => 'string|max:255',
-            'category_id' => 'nullable|exists:categories,id',
-            'description' => 'nullable|string|max:500',
-        ]);
 
         $file = $request->file('upload_file');
         $price = $request->input('price');

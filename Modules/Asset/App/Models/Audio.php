@@ -13,10 +13,10 @@ class Audio extends Model
     /**
      * The attributes that are mass assignable.
      */
+    protected $table = "audios";
     protected $fillable = [
         'user_id',
         'file_path',
-        'file_type',
         'price',
         'name',
         'duration',    // Specific to audios
