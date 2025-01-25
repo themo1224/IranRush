@@ -18,7 +18,7 @@ class PhotoController extends Controller
     {
         $this->photoService = $photoService;
     }
-    public function uploadPhoto(Request $request)
+    public function uploadPhoto(PhotoRequest $request)
     {
         $userId = auth()->user()->id;
         $file = $request->file('upload_file');
