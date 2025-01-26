@@ -2,6 +2,7 @@
 
 namespace Modules\Asset\App\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\Asset\Database\factories\AudioFactory;
@@ -33,5 +34,10 @@ class Audio extends Model
     public function processedVersions()
     {
         return $this->morphMany(ProcessedAsset::class, 'asset');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

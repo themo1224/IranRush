@@ -20,8 +20,8 @@ class Category extends Model
     }
 
     // Relationship for associated media
-    public function media()
-    {
-        return $this->belongsTo(Media::class, 'media_id', 'id');
-    }
+    // public function media()
+    // {
+    //     return $this->belongsTo(Media::class, 'media_id', 'id');
+    // }
 }
