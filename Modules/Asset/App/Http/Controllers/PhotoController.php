@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 use Modules\Asset\App\Http\Enums\AssetStatus;
 use Modules\Asset\App\Http\Requests\PhotoRequest;
 use Modules\Asset\Services\PhotoService;
+use Modules\Notification\App\Events\MediaUploadEvent;
+use Modules\Notification\App\Notifications\AssetUploadedNotification;
 
 class PhotoController extends Controller
 {
@@ -31,6 +33,8 @@ class PhotoController extends Controller
                 $tags = $request->input('tags', []);
                 $categoryId = $request->input('category_id');
                 $this->photoService->assignTagsAndCategories($photo, $tags, $categoryId);
+
+                event(new MediaUploadEvent('photo', $photo->id));
 
                 return response()->json([
                     'success' => true,

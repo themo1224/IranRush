@@ -17,7 +17,7 @@ class AssetUploadedNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($mediaId, $mediaType)
+    public function __construct($mediaType, $mediaId)
     {
         $this->mediaId = $mediaId;
         $this->mediaType = $mediaType;

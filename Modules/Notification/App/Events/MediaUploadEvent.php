@@ -2,13 +2,14 @@
 
 namespace Modules\Notification\App\Events;
 
+use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Events\Dispatchable;
 
 
 class MediaUploadEvent
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable, SerializesModels, InteractsWithSockets;
 
     public $mediaType;
     public $mediaId;
