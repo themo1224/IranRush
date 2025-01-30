@@ -4,12 +4,14 @@ namespace Modules\Auth\App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Auth\Database\factories\UserFactory;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Model
 {
-    use HasFactory, HasApiTokens;
+    use HasFactory, HasApiTokens, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -32,6 +34,6 @@ class User extends Model
     ];
     protected static function newFactory(): UserFactory
     {
-        //return UserFactory::new();
+        return UserFactory::new();
     }
 }

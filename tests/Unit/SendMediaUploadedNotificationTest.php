@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Notification\tests\Unit;
+namespace Tests\Unit;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -15,8 +15,6 @@ class SendMediaUploadedNotificationTest extends TestCase
 {
     /**
      * A basic unit test example.
-     *
-     * @return void
      */
     public function test_notification_is_sent_to_admins()
     {
@@ -24,7 +22,6 @@ class SendMediaUploadedNotificationTest extends TestCase
 
         $admin = User::factory()->create();
         $admin->assignRole('admin');
-
         $event = new MediaUploadEvent('video', 1);
 
         $listener = new SendMediaUploadedNotification();

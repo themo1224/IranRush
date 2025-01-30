@@ -9,7 +9,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 
 class AssetUploadedNotification extends Notification
 {
-    use Queueable;
+    // use Queueable;
 
     protected $mediaType;
     protected $mediaId;

@@ -2,9 +2,9 @@
 
 namespace Modules\Notification\App\Listeners;
 
-use App\Models\User;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Modules\Auth\App\Models\User;
 use Modules\Notification\App\Notifications\AssetUploadedNotification;
 
 class SendMediaUploadedNotification
