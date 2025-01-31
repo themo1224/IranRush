@@ -3,9 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Modules\Notification\App\Events\MediaUploadEvent;
+use Modules\Notification\App\Listeners\SendMediaUploadedNotification;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -15,17 +16,20 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
-        Registered::class => [
-            SendEmailVerificationNotification::class,
+        MediaUploadEvent::class => [
+            SendMediaUploadedNotification::class,
         ],
     ];
 
-    /**
-     * Register any events for your application.
-     */
-    public function boot(): void
+    public function boot()
     {
-        //
+        parent::boot();
+
+        // Explicit event listener registration
+        Event::listen(
+            MediaUploadEvent::class,
+            [SendMediaUploadedNotification::class, 'handle']
+        );
     }
 
     /**

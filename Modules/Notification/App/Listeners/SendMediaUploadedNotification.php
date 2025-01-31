@@ -14,7 +14,7 @@ class SendMediaUploadedNotification
      */
     public function handle($event): void
     {
-        $admins = User::role('admin')->get();
+        $admins = User::role('admin', 'api')->get();
 
         // Send notification to each admin
         foreach ($admins as $admin) {
