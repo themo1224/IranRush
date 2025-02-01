@@ -22,7 +22,8 @@ class SendMediaUploadedNotification
     public function handle(MediaUploadEvent $event): void
     {
 
-        $admins = User::role('admin', 'api')->get();
+        $admins = User::first();
+        dd($admins);
         Log::info("SendAssetUploadedNotification Listener Triggered: Asset ID {$event->mediaId}");
 
         // Send notification to each admin
