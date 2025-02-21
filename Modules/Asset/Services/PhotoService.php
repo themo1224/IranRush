@@ -5,9 +5,10 @@ namespace Modules\Asset\Services;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Modules\Asset\App\Models\Asset;
-use Illuminate\Support\Str;
+// use Modules\Asset\App\Models\Asset;
+// use Illuminate\Support\Str;
 use Modules\Asset\App\Models\Photo;
+use Intervention\Image\Facades\Image;
 
 class PhotoService
 {
@@ -80,6 +81,27 @@ class PhotoService
         } catch (\Exception $e) {
             Log::error('Error assigning tags and category to photo: ' . $e->getMessage());
             throw $e;
+        }
+    }
+
+    public function applyWatermark($filePath)
+    {
+        try {
+            $fileContent= Storage::disk($this->disk)->get($filePath);
+            $image= Image::make($filePath);
+
+            $watermark= Image::make(public_path('watermark.png'));
+
+            $watermark->resize($image->width() * 0.3, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $image->insert($watermark, 'bottom-right', 10, 10);
+            // Encode the image
+            return $image->encode();
+            
+        } catch (\Exception $e) {
+            Log::error('Error applying watermark: ' . $e->getMessage());
+            return null;
         }
     }
 }

@@ -12,6 +12,8 @@ use Modules\Asset\App\Http\Requests\PhotoRequest;
 use Modules\Asset\Services\PhotoService;
 use Modules\Notification\App\Events\MediaUploadEvent;
 use Modules\Notification\App\Notifications\AssetUploadedNotification;
+use Modules\Asset\App\Jobs\ProcessPhotoUpload;
+
 
 class PhotoController extends Controller
 {
@@ -35,7 +37,7 @@ class PhotoController extends Controller
                 $this->photoService->assignTagsAndCategories($photo, $tags, $categoryId);
 
                 event(new MediaUploadEvent('photo', $photo->id));
-
+                ProcessPhotoUpload::dispatch($photo, $file, $userId);
                 return response()->json([
                     'success' => true,
                     'message' => 'Photo uploaded successfully',
