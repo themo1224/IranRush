@@ -31,13 +31,15 @@ class PhotoController extends Controller
             $uploadResult = $this->photoService->storeFile($file, $userId);
             if ($uploadResult['success']) {
                 $photo = $this->savePhotoMetadata($uploadResult['file_url'], $file, $price, $userId);
+                // dd($photo, gettype($photo));
+
                 // Assign tags and category to the photo
                 $tags = $request->input('tags', []);
                 $categoryId = $request->input('category_id');
-                $this->photoService->assignTagsAndCategories($photo, $tags, $categoryId);
-
                 event(new MediaUploadEvent('photo', $photo->id));
-                ProcessPhotoUpload::dispatch($photo, $file, $userId);
+                $this->photoService->assignTagsAndCategories($photo, $tags, $categoryId);
+                $filePath = $uploadResult['file_path'];
+                ProcessPhotoUpload::dispatch($photo, $filePath, $userId);
                 return response()->json([
                     'success' => true,
                     'message' => 'Photo uploaded successfully',

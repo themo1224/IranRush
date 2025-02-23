@@ -24,6 +24,7 @@ class Photo extends Model
         'width',
         'height',
         'status',
+        'watermarked_path',
     ];
 
     public function qualities()

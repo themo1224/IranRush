@@ -9,6 +9,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Modules\Asset\App\Models\Photo;
 use Modules\Asset\Services\PhotoService;
+use Illuminate\Support\Facades\Storage;
+
 
 
 class ProcessPhotoUpload implements ShouldQueue
@@ -16,15 +18,15 @@ class ProcessPhotoUpload implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $photo;
-    protected $file;
+    protected $filePath;
     protected $userId;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($file, $userId, Photo $photo)
+    public function __construct(Photo $photo, $filePath, $userId )
     {
-        $this->file = $file;
+        $this->filePath = $filePath;
         $this->userId = $userId;
         $this->photo = $photo;
     }
@@ -34,12 +36,7 @@ class ProcessPhotoUpload implements ShouldQueue
      */
     public function handle(PhotoService $photoService)
     {
-         // Apply watermark to the file
-         $photoService->applyWatermark($this->photo->file_path);
-
-         // Store the watermarked version
-         $photoService->storeWatermarkedVersion($this->photo->file_path, $this->photo);
- 
-
+        // Pass the file path directly instead of retrieving the file content
+        $photoService->storeWatermarkedVersion($this->filePath, $this->photo);
     }
 }

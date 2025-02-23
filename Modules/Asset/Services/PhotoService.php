@@ -8,15 +8,23 @@ use Illuminate\Support\Facades\Storage;
 // use Modules\Asset\App\Models\Asset;
 // use Illuminate\Support\Str;
 use Modules\Asset\App\Models\Photo;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\Laravel\Facades\Image;
+use Intervention\Image\Drivers\Imagick\Driver;
+use Intervention\Image\ImageManager;
+
+
 
 class PhotoService
 {
     protected $disk;
+    protected $imageManager;
+
 
     public function __construct()
     {
         $this->disk = 'liara'; // Name of the disk configured in `filesystems.php`
+        $this->imageManager = new ImageManager(new Driver()); // Create new Intervention Image Manager
+
     }
 
     /**
@@ -42,6 +50,7 @@ class PhotoService
                 return [
                     'success' => true,
                     'file_url' => $fileUrl,
+                    'file_path' => $filePath,
                 ];
             }
 
@@ -57,7 +66,7 @@ class PhotoService
      */
     public function createPhoto(array $data): Photo
     {
-        return Photo::create($data);
+        return Photo::create($data)->fresh();
     }
 
     /**
@@ -88,20 +97,50 @@ class PhotoService
     {
         try {
             $fileContent= Storage::disk($this->disk)->get($filePath);
-            $image= Image::make($filePath);
+            // Read the image using ImageManager
+            $image = $this->imageManager->read($fileContent);
+            dd($image); 
+            // Load watermark
+            $watermarkPath = public_path('watermark.png');
+            
 
-            $watermark= Image::make(public_path('watermark.png'));
+            if (!file_exists($watermarkPath)) {
+                throw new \Exception("Watermark file not found: $watermarkPath");
+            }
 
-            $watermark->resize($image->width() * 0.3, null, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $image->insert($watermark, 'bottom-right', 10, 10);
+            // Read watermark image
+            $watermark = $this->imageManager->read(file_get_contents($watermarkPath));
+
+            // Resize watermark to 30% of image width
+            $watermark->scale(width: $image->width() * 0.3);
+
+            // Insert watermark at bottom-right corner
+            $image->place($watermark, 'bottom-right', 10, 10);
             // Encode the image
             return $image->encode();
             
         } catch (\Exception $e) {
             Log::error('Error applying watermark: ' . $e->getMessage());
             return null;
+        }
+    }
+
+    public function storeWaterMarkedVersion($filePath, Photo $photo)
+    {
+        try{
+            $watermarkedImage= $this->applyWatermark($filePath);
+            if($watermarkedImage){
+                $watermarkedPath= 'watermarked/' . $photo->user_id . '/' . basename($filePath);
+ 
+                Storage::disk($this->disk)->put($watermarkedPath, (string) $watermarkedImage);
+
+                $photo->watermarked_path= $watermarkedPath;
+                $photo->save();
+
+            }
+
+        }catch(\Exception $e ){
+
         }
     }
 }

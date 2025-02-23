@@ -170,6 +170,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\TelescopeServiceProvider::class,
         Nwidart\Modules\LaravelModulesServiceProvider::class,
+        
 
     ])->toArray(),
 
@@ -186,6 +187,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+
     ])->toArray(),
 
 ];
