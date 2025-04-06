@@ -1,5 +1,6 @@
 {
     "Auth": true,
     "Asset": true,
-    "Notification": true
+    "Notification": true,
+    "Ticket": true
 }
