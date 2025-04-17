@@ -6,17 +6,24 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Modules\Ticket\App\Models\Ticket;
 
-class TicketStatusChangedNotification extends Notification
+class TicketStatusChangedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    protected $ticket;
+    protected $oldStatus;
+    protected $newStatus;
+
+    public function __construct(Ticket $ticket, string $oldStatus, string $newStatus)
     {
-        //
+        $this->ticket = $ticket;
+        $this->oldStatus = $oldStatus;
+        $this->newStatus = $newStatus;
     }
 
     /**
@@ -24,7 +31,7 @@ class TicketStatusChangedNotification extends Notification
      */
     public function via($notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -33,9 +40,23 @@ class TicketStatusChangedNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', 'https://laravel.com')
+            ->subject('وضعیت تیکت شما بروزرسانی شد')
+            ->line('تیکت: ' . $this->ticket->subject)
+            ->line('وضغیت قبلی: ' . $this->oldStatus)
+            ->line('وضعیت جدید: ' . $this->newStatus)
+            ->action('دیدن تیکت', env('Admin-Url').'/tickets/' . $this->ticket->id)
             ->line('Thank you for using our application!');
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return [
+            'ticket_id' => $this->ticket->id,
+            'subject' => $this->ticket->subject,
+            'old_status' => $this->oldStatus,
+            'new_status' => $this->newStatus,
+            'message' => 'Ticket status has been updated',
+        ];
     }
 
     /**

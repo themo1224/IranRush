@@ -7,6 +7,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Modules\Ticket\App\Http\Requests\CreateTicketRequest;
+use Modules\Ticket\App\Models\Ticket;
+use Modules\Ticket\Events\TicketStatusChanged;
 use Modules\Ticket\Services\TicketService;
 
 class TicketController extends Controller
@@ -31,5 +33,15 @@ class TicketController extends Controller
             'message' => 'تیکت با موفقیت ثبت شد',
             'data' => $ticket,
         ], 201);
+    }
+
+    public function updateStatus(Ticket $ticket, string $newStatus)
+    {
+        return DB::transaction(function() use($ticket, $newStatus){
+            $oldStatus= $ticket->status;
+            $ticket->update(['status' => $newStatus]);
+            event(new TicketStatusChanged($ticket, $oldStatus, $newStatus));
+            return $ticket;
+        });
     }
 }
