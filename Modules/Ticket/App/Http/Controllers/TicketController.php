@@ -6,62 +6,30 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Modules\Ticket\App\Http\Requests\CreateTicketRequest;
+use Modules\Ticket\Services\TicketService;
 
 class TicketController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $ticketService;
+
+    public function __construct(TicketService $ticketService)
     {
-        return view('ticket::index');
+        $this->ticketService = $ticketService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(CreateTicketRequest $request)
     {
-        return view('ticket::create');
-    }
+        $ticket = $this->ticketService->create([
+            'subject' => $request->subject,
+            'message' => $request->message,
+            'user_id' => auth()->user()->id,
+            'media' => $request->file('attachment'),
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        //
-    }
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
-    {
-        return view('ticket::show');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        return view('ticket::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id): RedirectResponse
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        //
+        return response()->json([
+            'message' => 'تیکت با موفقیت ثبت شد',
+            'data' => $ticket,
+        ], 201);
     }
 }

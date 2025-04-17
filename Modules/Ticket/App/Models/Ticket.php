@@ -2,21 +2,52 @@
 
 namespace Modules\Ticket\App\Models;
 
+use App\Models\Media;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Modules\Ticket\Database\factories\TicketFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Modules\Ticket\App\Models\TicketReply;
 
 class Ticket extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'user_id',
+        'subject',
+        'description',
+        'status',
+        'ticket_id'
+    ];
+
+    protected $casts = [
+        'status' => 'string',
+    ];
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class);
+    }
 
     /**
-     * The attributes that are mass assignable.
+     * Get the parent ticket if this is a reply.
      */
-    protected $fillable = [];
-    
-    protected static function newFactory(): TicketFactory
+    public function parent(): BelongsTo
     {
-        //return TicketFactory::new();
+        return $this->belongsTo(Ticket::class, 'ticket_id');
+    }
+
+    /**
+     * Get the replies for the ticket.
+     */
+    public function replies(): HasMany
+    {
+        return $this->hasMany(TicketReply::class);
+    }
+
+    /**
+     * Get all of the ticket's media.
+     */
+    public function media(): MorphMany
+    {
+        return $this->morphMany(Media::class, 'mediable');
     }
 }
