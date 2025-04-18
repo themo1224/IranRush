@@ -1,0 +1,54 @@
+ version: '3'
+services:
+  # PHP Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iran-rush-api
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - iran-rush-network
+
+  # Nginx Service
+  nginx:
+    image: nginx:alpine
+    container_name: iran-rush-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d/
+    networks:
+      - iran-rush-network
+
+  # MySQL Service
+  db:
+    image: mysql:8.0
+    container_name: iran-rush-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: iran_rush
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: secret
+      MYSQL_USER: iran_rush
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql/
+    networks:
+      - iran-rush-network
+
+networks:
+  iran-rush-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
