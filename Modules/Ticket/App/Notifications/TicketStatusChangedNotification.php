@@ -6,11 +6,14 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Modules\Email\App\Services\EmailService;
 use Modules\Ticket\App\Models\Ticket;
 
 class TicketStatusChangedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
+    protected $emailService;
+
 
     /**
      * Create a new notification instance.
@@ -19,11 +22,13 @@ class TicketStatusChangedNotification extends Notification implements ShouldQueu
     protected $oldStatus;
     protected $newStatus;
 
-    public function __construct(Ticket $ticket, string $oldStatus, string $newStatus)
+    public function __construct(Ticket $ticket, string $oldStatus, string $newStatus, EmailService $emailService)
     {
         $this->ticket = $ticket;
         $this->oldStatus = $oldStatus;
         $this->newStatus = $newStatus;
+        $this->emailService = $emailService;
+
     }
 
     /**
