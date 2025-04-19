@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Modules\Ticket\App\Http\Requests\CreateTicketRequest;
 use Modules\Ticket\App\Models\Ticket;
 use Modules\Ticket\Events\TicketStatusChanged;
@@ -35,13 +36,21 @@ class TicketController extends Controller
         ], 201);
     }
 
-    public function updateStatus(Ticket $ticket, string $newStatus)
+
+    public function replyTicket(Request $request)
     {
-        return DB::transaction(function() use($ticket, $newStatus){
-            $oldStatus= $ticket->status;
-            $ticket->update(['status' => $newStatus]);
-            event(new TicketStatusChanged($ticket, $oldStatus, $newStatus));
-            return $ticket;
+        return DB::transaction(function () use ($request){
+            try {
+                $replyTicket = $this->ticketService->replyTicket($request->all());
+                
+                return response()->json([
+                    'message' => 'Reply added successfully',
+                    'data' => $replyTicket
+                ]);
+            } catch (\Throwable $th) {
+                return response()->json(['error' => $th->getMessage()], 500);
+            }
         });
     }
+
 }

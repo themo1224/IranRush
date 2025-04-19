@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Modules\Ticket\App\Models\Ticket;
 use Modules\Ticket\App\Models\TicketReply;
 use Modules\Ticket\Events\TicketCreated;
+use Modules\Ticket\Events\TicketStatusChanged;
 
 class TicketService
 {
@@ -66,13 +67,31 @@ class TicketService
     {
         return DB::transaction(function () use ($data){
             $adminID= Auth::id();
+            $ticket = Ticket::find($data['ticket_id']);
+            $old_status= $ticket->status;
+            
             $ticketReply= TicketReply::create([
                 'ticket_id' => $data['ticket_id'],
                 'admin_id' => $adminID,
                 'message' => $data['message'], 
             ]);
+            
             $this->handleMedia($ticketReply, $data['media'] ?? null, 'tickets');
+            
+            // Update ticket status to 'answered' when admin replies
+            $this->updateStatus($ticket, 'answered');
+            
+            return $ticketReply;
+        });
+    }
 
+    public function updateStatus(Ticket $ticket, string $newStatus)
+    {
+        return DB::transaction(function() use($ticket, $newStatus){
+            $oldStatus = $ticket->status;
+            $ticket->update(['status' => $newStatus]);
+            event(new TicketStatusChanged($ticket, $oldStatus, $newStatus));
+            return $ticket;
         });
     }
 }
