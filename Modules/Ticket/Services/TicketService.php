@@ -3,9 +3,12 @@
 namespace Modules\Ticket\Services;
 
 use App\Traits\HandlesMedia;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
 use Modules\Ticket\App\Models\Ticket;
+use Modules\Ticket\App\Models\TicketReply;
 use Modules\Ticket\Events\TicketCreated;
 
 class TicketService
@@ -56,6 +59,20 @@ class TicketService
             }
 
             return $ticket->delete();
+        });
+    }
+
+    public function replyTicket(array $data)
+    {
+        return DB::transaction(function () use ($data){
+            $adminID= Auth::id();
+            $ticketReply= TicketReply::create([
+                'ticket_id' => $data['ticket_id'],
+                'admin_id' => $adminID,
+                'message' => $data['message'], 
+            ]);
+            $this->handleMedia($ticketReply, $data['media'] ?? null, 'tickets');
+
         });
     }
 }

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('ticket_replies', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('ticket_id')->constrained()->onDelete('cascade');
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null');
             $table->text('message');
             $table->foreignId('media_id')->nullable()->constrained('media')->onDelete('set null');
@@ -28,6 +29,7 @@ return new class extends Migration
         Schema::table('ticket_replies', function (Blueprint $table) {
             $table->dropForeign(['admin_id']);   // Drop the foreign key on admin_id
             $table->dropForeign(['media_id']);   // Drop the foreign key on media_id
+            $table->dropForeign(['ticket_id']);   // Drop the foreign key on media_id
         });
         
         Schema::dropIfExists('ticket_replies');
