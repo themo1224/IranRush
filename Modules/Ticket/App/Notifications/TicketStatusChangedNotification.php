@@ -22,8 +22,9 @@ class TicketStatusChangedNotification extends Notification implements ShouldQueu
     protected $oldStatus;
     protected $newStatus;
 
-    public function __construct(Ticket $ticket, string $oldStatus, string $newStatus)
+    public function __construct(Ticket $ticket, string $oldStatus, string $newStatus, EmailService  $emailService)
     {
+        $this->emailService = $emailService; // Inject the service
         $this->ticket = $ticket;
         $this->oldStatus = $oldStatus;
         $this->newStatus = $newStatus;
@@ -50,7 +51,7 @@ class TicketStatusChangedNotification extends Notification implements ShouldQueu
             'newStatus' => $this->newStatus,
             'url'       => url("/admin/tickets/{$this->ticket->id}"), // Dynamic URL
         ];
-        return app(EmailService::class)->send(
+        return $this->emailService->send(
             $notifiable->email,
             $subject,
             $view,
