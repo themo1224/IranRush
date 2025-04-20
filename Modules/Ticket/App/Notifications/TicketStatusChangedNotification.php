@@ -22,13 +22,11 @@ class TicketStatusChangedNotification extends Notification implements ShouldQueu
     protected $oldStatus;
     protected $newStatus;
 
-    public function __construct(Ticket $ticket, string $oldStatus, string $newStatus, EmailService $emailService)
+    public function __construct(Ticket $ticket, string $oldStatus, string $newStatus)
     {
         $this->ticket = $ticket;
         $this->oldStatus = $oldStatus;
         $this->newStatus = $newStatus;
-        $this->emailService = $emailService;
-
     }
 
     /**
@@ -42,15 +40,22 @@ class TicketStatusChangedNotification extends Notification implements ShouldQueu
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail($notifiable): MailMessage
+    public function toMail($notifiable)
     {
-        return (new MailMessage)
-            ->subject('وضعیت تیکت شما بروزرسانی شد')
-            ->line('تیکت: ' . $this->ticket->subject)
-            ->line('وضغیت قبلی: ' . $this->oldStatus)
-            ->line('وضعیت جدید: ' . $this->newStatus)
-            ->action('دیدن تیکت', env('Admin-Url').'/tickets/' . $this->ticket->id)
-            ->line('Thank you for using our application!');
+        $subject = 'وضعیت تیکت شما بروزرسانی شد';
+        $view = 'ticket.ticket_status';
+        $data = [
+            'ticket'    => $this->ticket,
+            'oldStatus' => $this->oldStatus,
+            'newStatus' => $this->newStatus,
+            'url'       => url("/admin/tickets/{$this->ticket->id}"), // Dynamic URL
+        ];
+        return app(EmailService::class)->send(
+            $notifiable->email,
+            $subject,
+            $view,
+            $data
+        );
     }
 
     public function toDatabase($notifiable)

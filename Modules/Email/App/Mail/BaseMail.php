@@ -17,7 +17,7 @@ class BaseMail extends Mailable
     public $data;
     public $attachments;
 
-    public function __construct($subject, $view, $data= [], $attachments)
+    public function __construct($subject, $view, $data= [], $attachments= [])
     {
         $this->subject = $subject;
         $this->view = $view;
@@ -35,13 +35,13 @@ class BaseMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: $this->view,
+            markdown: $this->view,  // Uses Laravel's Markdown parser
             with: $this->data,
         );
     }
 
     public function attachments(): array
     {
-        return $this->attachments;
+        return $this->attachments ?? [];
     }
 }
