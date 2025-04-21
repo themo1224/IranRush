@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Modules\Ticket\App\Http\Controllers\TicketController;
 
 /*
     |--------------------------------------------------------------------------
@@ -14,6 +15,4 @@ use Illuminate\Support\Facades\Route;
     |
 */
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->name('api.')->group(function () {
-    Route::get('ticket', fn (Request $request) => $request->user())->name('ticket');
-});
+ Route::post('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');
