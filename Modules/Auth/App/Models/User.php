@@ -8,9 +8,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Modules\Auth\Database\factories\UserFactory;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Foundation\Auth\User;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends User
+class User extends Authenticatable
 {
     use HasFactory, HasApiTokens, HasRoles, Notifiable;
 

@@ -15,4 +15,4 @@ use Modules\Ticket\App\Http\Controllers\TicketController;
     |
 */
 
- Route::post('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');
+ Route::post('/tickets/create', [TicketController::class, 'store'])->name('tickets.create');

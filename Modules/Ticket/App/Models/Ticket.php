@@ -16,7 +16,6 @@ class Ticket extends Model
         'subject',
         'description',
         'status',
-        'ticket_id'
     ];
 
     protected $casts = [

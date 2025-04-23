@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
 use Modules\Ticket\App\Models\Ticket;
 use Modules\Ticket\App\Models\TicketReply;
-use Modules\Ticket\Events\TicketCreated;
+use Modules\Ticket\App\Events\TicketCreated;
 use Modules\Ticket\Events\TicketStatusChanged;
 
 class TicketService
@@ -24,7 +24,6 @@ class TicketService
                 'subject' => $data['subject'],
                 'description' => $data['description'],
                 'status' => $data['status'] ?? 'open',
-                'ticket_id' => $data['ticket_id'] ?? null,
             ]);
 
             // Handle media attachments if present
@@ -73,7 +72,7 @@ class TicketService
             $ticketReply= TicketReply::create([
                 'ticket_id' => $data['ticket_id'],
                 'admin_id' => $adminID,
-                'message' => $data['message'], 
+                'description' => $data['description'], 
             ]);
             
             $this->handleMedia($ticketReply, $data['media'] ?? null, 'tickets');

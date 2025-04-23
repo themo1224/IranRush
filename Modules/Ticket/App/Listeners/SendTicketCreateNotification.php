@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Modules\Ticket\App\Notifications\TicketCreatedNotification;
-use Modules\Ticket\Events\TicketCreated;
+use Modules\Ticket\App\Events\TicketCreated;
 
 class SendTicketCreateNotification
 {

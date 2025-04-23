@@ -6,6 +6,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Modules\Auth\App\Models\User;
+use Modules\Ticket\App\Providers\TicketServiceProvider;
 use Tests\TestCase;
 
 class TicketControllerTest extends TestCase
@@ -13,6 +14,14 @@ class TicketControllerTest extends TestCase
     /**
      * A basic feature test example.
      */
+    // protected function setUp(): void
+    // {
+    //     parent::setUp();
+
+    //     // Load the module's service provider if needed
+    //     $this->app->register(TicketServiceProvider::class);
+    // }
+
     use RefreshDatabase;
 
     public function test_create_ticket()
@@ -23,7 +32,7 @@ class TicketControllerTest extends TestCase
        // Step 2: Prepare the data for the new ticket
        $data = [
            'subject' => 'Test Subject',  // Ticket's subject
-           'message' => 'Test message content',  // Ticket's description/message
+           'description' => 'Test message content',  // Ticket's description/message
            'attachment' => null  // No attachment in this case
        ];
 
@@ -41,7 +50,7 @@ class TicketControllerTest extends TestCase
 
         $this->assertDatabaseHas('tickets', [
            'subject' => 'Test Subject',
-           'message' => 'Test message content',
+           'description' => 'Test message content',
            'user_id' => $user->id,
         ]);
     }

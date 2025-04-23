@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Ticket\Events;
+namespace Modules\Ticket\App\Events;
 
 use App\Models\User;
 use Illuminate\Foundation\Events\Dispatchable;

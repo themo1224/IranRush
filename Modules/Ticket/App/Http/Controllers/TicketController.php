@@ -25,7 +25,7 @@ class TicketController extends Controller
     {
         $ticket = $this->ticketService->create([
             'subject' => $request->subject,
-            'message' => $request->message,
+            'description' => $request->description,
             'user_id' => auth()->user()->id,
             'media' => $request->file('attachment'),
         ]);
