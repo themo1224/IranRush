@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Modules\Email\App\Services\EmailService;
 use Modules\Ticket\App\Models\Ticket;
 
 class TicketCreatedNotification extends Notification implements ShouldQueue
@@ -13,13 +14,16 @@ class TicketCreatedNotification extends Notification implements ShouldQueue
     use Queueable;
 
     protected $ticket;
+    protected $emailService;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(Ticket $ticket)
+    public function __construct(Ticket $ticket, EmailService  $emailService)
     {
         $this->ticket = $ticket;
+        $this->emailService = $emailService; // Inject the service
+
     }
 
     /**
@@ -33,21 +37,27 @@ class TicketCreatedNotification extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail($notifiable): MailMessage
+    public function toMail($notifiable)
     {
-        return (new MailMessage)
-            ->subject('New Ticket Created')
-            ->line('A new ticket has been created.')
-            ->line('Ticket Subject: ' . $this->ticket->subject)
-            ->action('Notification Action', env('Admin-Url').'/tickets/' . $this->ticket->id)
-            ->line('Thank you for using our application!');
+        $subject = 'تیکتی ساخته شده است';
+        $view = 'ticket.ticket_status';
+        $data = [
+            'ticket'    => $this->ticket,
+            'url'       => url("/admin/tickets/{$this->ticket->id}"), // Dynamic URL
+        ];
+        return $this->emailService->send(
+            $notifiable->email,
+            $subject,
+            $view,
+            $data
+        );
     }
 
     public function toDatabase($notifiable)
     {
         return [
             'ticket_id' => $this->ticket->id,
-            'subject' => $this->ticket->subject,
+            'description' => $this->ticket->description,
             'message' => $this->ticket->message,
             'url' => env('Admin-Url').'/tickets/' . $this->ticket->id,
         ];
