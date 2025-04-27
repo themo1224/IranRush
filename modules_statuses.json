@@ -3,5 +3,6 @@
     "Asset": true,
     "Notification": true,
     "Ticket": true,
-    "Email": true
+    "Email": true,
+    "Payment": true
 }
