@@ -7,6 +7,8 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use Illuminate\Support\Facades\Event;
 use Modules\Notification\App\Events\MediaUploadEvent;
 use Modules\Notification\App\Listeners\SendMediaUploadedNotification;
+use Modules\Ticket\App\Events\TicketCreated;
+use Modules\Ticket\App\Listeners\SendTicketCreateNotification;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,10 @@ class EventServiceProvider extends ServiceProvider
         MediaUploadEvent::class => [
             SendMediaUploadedNotification::class,
         ],
+        TicketCreated::class => [
+            SendTicketCreateNotification::class,
+        ],
+
     ];
 
     public function boot()

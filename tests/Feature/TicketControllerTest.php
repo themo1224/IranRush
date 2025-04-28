@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Modules\Auth\App\Models\User;
+use Modules\Email\App\Mail\BaseMail;
 use Modules\Ticket\App\Events\TicketCreated;
+use Modules\Ticket\App\Notifications\TicketCreatedNotification;
 use Modules\Ticket\App\Providers\TicketServiceProvider;
 use Tests\TestCase;
 
@@ -68,7 +70,13 @@ class TicketControllerTest extends TestCase
         Event::assertDispatched(TicketCreated::class);
 
         //step 9: Assert that the notification was sent to the user
-        Notification::assertSentTo($user, )
+        Notification::assertSentTo(
+            [$user], TicketCreatedNotification::class
+        );        
+        //step 10: Assert the email was sent
+        Mail::assertSent(BaseMail::class, function ($mail) use ($user){
+            return $mail->hasTo($user->email);
+        });
     }
 
       /**

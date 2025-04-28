@@ -5,6 +5,7 @@ namespace Modules\Ticket\App\Listeners;
 use App\Models\User;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 use Modules\Email\App\Services\EmailService;
 use Modules\Ticket\App\Notifications\TicketCreatedNotification;
 use Modules\Ticket\App\Events\TicketCreated;
@@ -21,16 +22,17 @@ class SendTicketCreateNotification
         $this->emailService = $emailService;
     }
 
-    /**
-     * Handle the event.
-     */
     public function handle(TicketCreated $event): void
     {
-        $event->ticket->user->notify(new TicketCreatedNotification($event->ticket, $this->emailService));
-        $admins = User::role('admin')->get();
+        dd("Listener executed!"); // Immediately stop execution to check if the listener is running
 
-        foreach($admins as $admin){
-            $admin->notify(new TicketCreatedNotification($event->ticket, $this->emailService));
-        }
+        Log::info("Sending notification to ticket owner: " . $event->ticket);
+        $event->ticket->user->notify(new TicketCreatedNotification($event->ticket, $this->emailService));
+        // $admins = User::role('admin')->get();
+
+        // foreach($admins as $admin){
+        //     Log::info("Sending notification to admin: " . $admin->email);
+        //     $admin->notify(new TicketCreatedNotification($event->ticket, $this->emailService));
+        // }
     }
 }

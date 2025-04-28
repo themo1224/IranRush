@@ -5,6 +5,7 @@ namespace Modules\Ticket\Services;
 use App\Traits\HandlesMedia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Storage;
 use Modules\Ticket\App\Models\Ticket;
@@ -28,6 +29,7 @@ class TicketService
 
             // Handle media attachments if present
             $this->handleMedia($ticket, $data['media'] ?? null, 'tickets');
+            Log::info('Dispatching TicketCreated event');
 
             // Dispatch the TicketCreated event
             event(new TicketCreated($ticket));

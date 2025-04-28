@@ -9,9 +9,8 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Modules\Email\App\Services\EmailService;
 use Modules\Ticket\App\Models\Ticket;
 
-class TicketCreatedNotification extends Notification implements ShouldQueue
+class TicketCreatedNotification extends Notification 
 {
-    use Queueable;
 
     protected $ticket;
     protected $emailService;
@@ -58,10 +57,11 @@ class TicketCreatedNotification extends Notification implements ShouldQueue
         return [
             'ticket_id' => $this->ticket->id,
             'description' => $this->ticket->description,
-            'message' => $this->ticket->message,
-            'url' => env('Admin-Url').'/tickets/' . $this->ticket->id,
+            'subject' => $this->ticket->subject,
+            'url' => env('ADMIN_URLl') . '/tickets/' . $this->ticket->id,
         ];
     }
+
 
     /**
      * Get the array representation of the notification.
