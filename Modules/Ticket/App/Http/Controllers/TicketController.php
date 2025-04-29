@@ -3,6 +3,7 @@
 namespace Modules\Ticket\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -21,19 +22,23 @@ class TicketController extends Controller
         $this->ticketService = $ticketService;
     }
 
-    public function store(CreateTicketRequest $request)
+    public function store(Request $request)
     {
-        $ticket = $this->ticketService->create([
-            'subject' => $request->subject,
-            'description' => $request->description,
-            'user_id' => auth()->user()->id,
-            'media' => $request->file('attachment'),
-        ]);
-
-        return response()->json([
-            'message' => 'تیکت با موفقیت ثبت شد',
-            'data' => $ticket,
-        ], 201);
+        try {
+            $ticket = $this->ticketService->create([
+                'subject' => $request->subject,
+                'description' => $request->description,
+                'user_id' => auth()->user()->id,
+                'media' => $request->file('attachment'),
+            ]);
+    
+            return response()->json([
+                'message' => 'تیکت با موفقیت ثبت شد',
+                'data' => $ticket,
+            ], 201);
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
 

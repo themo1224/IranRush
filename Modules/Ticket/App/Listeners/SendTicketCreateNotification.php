@@ -24,8 +24,6 @@ class SendTicketCreateNotification
 
     public function handle(TicketCreated $event): void
     {
-        dd("Listener executed!"); // Immediately stop execution to check if the listener is running
-
         Log::info("Sending notification to ticket owner: " . $event->ticket);
         $event->ticket->user->notify(new TicketCreatedNotification($event->ticket, $this->emailService));
         // $admins = User::role('admin')->get();
