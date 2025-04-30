@@ -17,7 +17,7 @@ class SendTicketCreateNotification
      */
     protected $emailService;
 
-    public function __construct(EmailService  $emailService)
+    public function __construct(EmailService $emailService)
     {
         $this->emailService = $emailService;
     }
@@ -25,12 +25,12 @@ class SendTicketCreateNotification
     public function handle(TicketCreated $event): void
     {
         Log::info("Sending notification to ticket owner: " . $event->ticket);
-        $event->ticket->user->notify(new TicketCreatedNotification($event->ticket, $this->emailService));
-        // $admins = User::role('admin')->get();
-
-        // foreach($admins as $admin){
-        //     Log::info("Sending notification to admin: " . $admin->email);
-        //     $admin->notify(new TicketCreatedNotification($event->ticket, $this->emailService));
-        // }
+        $event->ticket->user->notify(new TicketCreatedNotification($event->ticket));
+        
+        $admins = User::role('admin')->get();
+        foreach($admins as $admin){
+            Log::info("Sending notification to admin: " . $admin->email);
+            $admin->notify(new TicketCreatedNotification($event->ticket));
+        }
     }
 }

@@ -11,6 +11,7 @@ use Modules\Ticket\App\Models\Ticket;
 
 class TicketCreatedNotification extends Notification 
 {
+    use Queueable;
 
     protected $ticket;
     protected $emailService;
@@ -18,11 +19,9 @@ class TicketCreatedNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct(Ticket $ticket, EmailService  $emailService)
+    public function __construct(Ticket $ticket)
     {
         $this->ticket = $ticket;
-        $this->emailService = $emailService; // Inject the service
-
     }
 
     /**
@@ -36,20 +35,14 @@ class TicketCreatedNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
-        $subject = 'تیکتی ساخته شده است';
-        $view = 'ticket.ticket_status';
-        $data = [
-            'ticket'    => $this->ticket,
-            'url'       => url("/admin/tickets/{$this->ticket->id}"), // Dynamic URL
-        ];
-        return $this->emailService->send(
-            $notifiable->email,
-            $subject,
-            $view,
-            $data
-        );
+        return (new MailMessage)
+            ->subject('تیکتی ساخته شده است سکسی')
+            ->markdown('ticket.ticket_created', [
+                'ticket' => $this->ticket,
+                'url' => url("/admin/tickets/{$this->ticket->id}")
+            ]);
     }
 
     public function toDatabase($notifiable)

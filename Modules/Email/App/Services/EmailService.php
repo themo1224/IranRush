@@ -9,23 +9,25 @@ use Modules\Email\App\Mail\BaseMail;
 
 class EmailService
 {
-    public function send($to, $subject, $view, $data = [], $attachments = [])
+    public function send($to, $subject, $view="", $data = [], $attachments = [])
     {
         try {
+            if (!view()->exists($view)) {
+                throw new \Exception("View '{$view}' does not exist");
+            }
             Mail::to($to)->send(new BaseMail($subject, $view, $data, $attachments));
             return true;
         } catch (\Exception $e) {
             throw new EmailSendingException(
-                message: "failed to send email to {$to}",
+                message: "Failed to send email: " . $e->getMessage(),
                 context: [
                     'recipient' => $to,
                     'subject' => $subject,
+                    'view' => $view,
                     'error' => $e->getMessage()
                 ],
-                previous: $e // Preserve original exception
+                previous: $e
             );
-            Log::error('Email sending failed: ' . $e->getMessage());
-            return false;
         }
     }
 
