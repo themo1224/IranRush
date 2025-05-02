@@ -38,7 +38,7 @@ class TicketCreatedNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('تیکتی ساخته شده است سکسی')
+            ->subject('تیکتی ساخته شده است')
             ->markdown('ticket.ticket_created', [
                 'ticket' => $this->ticket,
                 'url' => url("/admin/tickets/{$this->ticket->id}")

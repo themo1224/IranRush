@@ -4,6 +4,7 @@ namespace Modules\Email\App\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\Email\App\Contracts\EmailServiceInterface;
 use Modules\Email\App\Services\EmailService;
 
 class EmailServiceProvider extends ServiceProvider
@@ -13,27 +14,49 @@ class EmailServiceProvider extends ServiceProvider
     protected string $moduleNameLower = 'email';
 
     /**
-     * Boot the application events.
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        // Merge config
+        $this->mergeConfigFrom(
+            __DIR__.'/../../config/email.php', 'email'
+        );
+
+        // Bind EmailService
+        $this->app->singleton(EmailServiceInterface::class, function ($app) {
+            return new EmailService();
+        });
+    }
+
+    /**
+     * Bootstrap any application services.
      */
     public function boot(): void
     {
+        // Publish config
+        $this->publishes([
+            __DIR__.'/../../config/email.php' => config_path('email.php'),
+        ], 'email-config');
+
+        // Register log channel if enabled
+        if (config('email.logging.enabled', true)) {
+            config([
+                'logging.channels.email' => [
+                    'driver' => 'daily',
+                    'path' => storage_path('logs/email.log'),
+                    'level' => 'debug',
+                    'days' => 14,
+                ],
+            ]);
+        }
+
         $this->registerCommands();
         $this->registerCommandSchedules();
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/migrations'));
-    }
-
-    /**
-     * Register the service provider.
-     */
-    public function register(): void
-    {
-        $this->app->register(RouteServiceProvider::class);
-        $this->app->singleton(EmailService::class, function ($app) {
-            return new EmailService();
-        });
     }
 
     /**
