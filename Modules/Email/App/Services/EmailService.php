@@ -34,6 +34,7 @@ class EmailService implements EmailServiceInterface
                 Config::get('email.form.address'),
                 Config::get('email.from.name'),
             );
+            
 
             $attempts = Config::get('email.retry.attempts', 1);
             $delay = Config::get('email.retry.delay', 5);

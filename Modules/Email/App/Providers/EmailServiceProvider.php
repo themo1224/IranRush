@@ -19,11 +19,16 @@ class EmailServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Merge config
+        // Loads email settings
+
         $this->mergeConfigFrom(
-            __DIR__.'/../../config/email.php', 'email'
+            __DIR__ . '/../../config/email.php',
+            'email'
         );
 
         // Bind EmailService
+        // Creates ONE email service for everyone to use
+
         $this->app->singleton(EmailServiceInterface::class, function ($app) {
             return new EmailService();
         });
@@ -35,11 +40,15 @@ class EmailServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Publish config
+        // Makes config files available
+
         $this->publishes([
-            __DIR__.'/../../config/email.php' => config_path('email.php'),
+            __DIR__ . '/../../config/email.php' => config_path('email.php'),
         ], 'email-config');
 
         // Register log channel if enabled
+        // Sets up logging if enabled
+
         if (config('email.logging.enabled', true)) {
             config([
                 'logging.channels.email' => [
@@ -51,6 +60,7 @@ class EmailServiceProvider extends ServiceProvider
             ]);
         }
 
+        // Calls all the setup methods
         $this->registerCommands();
         $this->registerCommandSchedules();
         $this->registerTranslations();
@@ -83,7 +93,7 @@ class EmailServiceProvider extends ServiceProvider
      */
     public function registerTranslations(): void
     {
-        $langPath = resource_path('lang/modules/'.$this->moduleNameLower);
+        $langPath = resource_path('lang/modules/' . $this->moduleNameLower);
 
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, $this->moduleNameLower);
@@ -99,7 +109,7 @@ class EmailServiceProvider extends ServiceProvider
      */
     protected function registerConfig(): void
     {
-        $this->publishes([module_path($this->moduleName, 'config/config.php') => config_path($this->moduleNameLower.'.php')], 'config');
+        $this->publishes([module_path($this->moduleName, 'config/config.php') => config_path($this->moduleNameLower . '.php')], 'config');
         $this->mergeConfigFrom(module_path($this->moduleName, 'config/config.php'), $this->moduleNameLower);
     }
 
@@ -108,14 +118,14 @@ class EmailServiceProvider extends ServiceProvider
      */
     public function registerViews(): void
     {
-        $viewPath = resource_path('views/modules/'.$this->moduleNameLower);
+        $viewPath = resource_path('views/modules/' . $this->moduleNameLower);
         $sourcePath = module_path($this->moduleName, 'resources/views');
 
-        $this->publishes([$sourcePath => $viewPath], ['views', $this->moduleNameLower.'-module-views']);
+        $this->publishes([$sourcePath => $viewPath], ['views', $this->moduleNameLower . '-module-views']);
 
         $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->moduleNameLower);
 
-        $componentNamespace = str_replace('/', '\\', config('modules.namespace').'\\'.$this->moduleName.'\\'.config('modules.paths.generator.component-class.path'));
+        $componentNamespace = str_replace('/', '\\', config('modules.namespace') . '\\' . $this->moduleName . '\\' . config('modules.paths.generator.component-class.path'));
         Blade::componentNamespace($componentNamespace, $this->moduleNameLower);
     }
 
@@ -131,8 +141,8 @@ class EmailServiceProvider extends ServiceProvider
     {
         $paths = [];
         foreach (config('view.paths') as $path) {
-            if (is_dir($path.'/modules/'.$this->moduleNameLower)) {
-                $paths[] = $path.'/modules/'.$this->moduleNameLower;
+            if (is_dir($path . '/modules/' . $this->moduleNameLower)) {
+                $paths[] = $path . '/modules/' . $this->moduleNameLower;
             }
         }
 
